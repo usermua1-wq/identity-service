@@ -1,16 +1,19 @@
 package com.devteria.identity_service.exception;
 
-import com.devteria.identity_service.dto.request.ApiResponse;
+import com.devteria.identity_service.dto.response.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
     @ExceptionHandler(value = Exception.class)
-    ResponseEntity<ApiResponse> handlingRuntimeException(){
+    ResponseEntity<ApiResponse> handlingRuntimeException(Exception exception){
         ApiResponse apiResponse = new ApiResponse();
+        log.error("Exception occurred: ", exception);
         apiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
         apiResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
         return ResponseEntity.badRequest().body(apiResponse);
@@ -20,6 +23,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ApiResponse> handlingAppException(AppException exception){
         ErrorCode errorCode = exception.getErrorCode();
         ApiResponse apiResponse = new ApiResponse();
+        log.error("Exception occurred: ", exception);
         apiResponse.setCode(errorCode.getCode());
         apiResponse.setMessage(errorCode.getMessage());
         return ResponseEntity.badRequest().body(apiResponse);
@@ -35,7 +39,7 @@ public class GlobalExceptionHandler {
         }catch (IllegalArgumentException e) {
 
         }
-
+        log.error("Exception occurred: ", exception);
         ApiResponse apiResponse = new ApiResponse();
         apiResponse.setCode(errorCode.getCode());
         apiResponse.setMessage(errorCode.getMessage());

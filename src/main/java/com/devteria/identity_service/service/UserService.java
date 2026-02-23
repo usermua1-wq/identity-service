@@ -4,6 +4,7 @@ import com.devteria.identity_service.dto.request.UserCreationRequest;
 import com.devteria.identity_service.dto.request.UserUpdateRequest;
 import com.devteria.identity_service.dto.response.UserResponse;
 import com.devteria.identity_service.entity.User;
+import com.devteria.identity_service.enums.Role;
 import com.devteria.identity_service.exception.AppException;
 import com.devteria.identity_service.exception.ErrorCode;
 import com.devteria.identity_service.mapper.UserMapper;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -31,6 +33,9 @@ public class UserService {
         User user = userMapper.toUser(request);
         PasswordEncoder encoder = new BCryptPasswordEncoder(10);
         user.setPassword(encoder.encode(request.getPassword()));
+        HashSet<String> roles = new HashSet<>();
+        roles.add(Role.USER.name());
+        user.setRoles(roles);
         return userRepository.save(user);
     }
 
