@@ -4,6 +4,7 @@ import com.devteria.identity_service.dto.request.AuthenticationRequest;
 import com.devteria.identity_service.dto.request.VerifyTokenRequest;
 import com.devteria.identity_service.dto.response.AuthenticationResponse;
 import com.devteria.identity_service.dto.response.VerifyTokenResponse;
+import com.devteria.identity_service.entity.User;
 import com.devteria.identity_service.exception.AppException;
 import com.devteria.identity_service.exception.ErrorCode;
 import com.devteria.identity_service.repository.UserRepository;
@@ -20,9 +21,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.StringJoiner;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +43,7 @@ public class AuthenticationService {
         if(!authenticated.matches(request.getPassword(), user.getPassword())){
             throw new AppException(ErrorCode.WRONG_PASSWORD);
         }else{
-            var token = generateToken(request.getUsername());
+            var token = generateToken(user);
             return AuthenticationResponse.builder()
                     .token(token)
                     .authenticated(true)
@@ -48,17 +51,17 @@ public class AuthenticationService {
         }
     }
 
-    public String generateToken(String username) {
+    public String generateToken(User user) {
         // Secret key for HMAC (should be stored securely)
         byte[] secretBytes = SIGNED_KEY.getBytes();
 
         // Set JWT claims
         JWTClaimsSet claims = new JWTClaimsSet.Builder()
-                .subject(username)
+                .subject(user.getUsername())
                 .issueTime(new Date())
-                .issuer(username)
+                .issuer("Self_Learning_Staff")
                 .expirationTime(new Date(System.currentTimeMillis() + 3600 * 1000)) // 1 hour expiry
-                .claim("customClaim", "customValue")
+                .claim("scope", buildScope(user))
                 .build();
 
         // Create JWS header with HS512 algorithm
@@ -83,9 +86,16 @@ public class AuthenticationService {
         SignedJWT signedJWT = SignedJWT.parse(request.getToken());
         byte[] secretBytes = SIGNED_KEY.getBytes();
         JWSVerifier verifier = new MACVerifier(secretBytes);
-        VerifyTokenResponse test = new VerifyTokenResponse();
         return VerifyTokenResponse.builder()
                 .valid(signedJWT.verify(verifier) && new Date().before(signedJWT.getJWTClaimsSet().getExpirationTime()))
                 .build();
+    }
+
+    private String buildScope(User user){
+        StringJoiner stringJoiner = new StringJoiner(", ");
+        if(!CollectionUtils.isEmpty(user.getRoles())){
+            user.getRoles().forEach(stringJoiner::add);
+        }
+        return stringJoiner.toString();
     }
 }
