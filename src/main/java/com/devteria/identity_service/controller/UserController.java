@@ -24,28 +24,41 @@ public class UserController {
     @PostMapping
     ApiResponse<User> createUser(@RequestBody @Valid UserCreationRequest request){
         ApiResponse<User> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(userService.createRequest(request));
-        return apiResponse;
+        return apiResponse.<User>builder()
+                 .result(userService.createRequest(request))
+                 .build();
     }
 
     @GetMapping
-    List<User> getUsers(){
-        return userService.getUsers();
+    ApiResponse<List<User>> getUsers(){
+        ApiResponse<List<User>> apiResponse = new ApiResponse<>();
+        return apiResponse.<List<User>>builder()
+                .result(userService.getUsers())
+                .build();
     }
 
     @GetMapping("/{userId}")
-    UserResponse getUser(@PathVariable("userId") String userId){
-        return userService.getUser(userId);
+    ApiResponse<UserResponse> getUser(@PathVariable("userId") String userId){
+        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
+        return apiResponse.<UserResponse>builder()
+                .result(userService.getUser(userId))
+                .build();
     }
 
     @PutMapping
-    UserResponse userUpdate(@RequestBody UserUpdateRequest request){
-        return userService.userUpdate(request);
+    ApiResponse<UserResponse> userUpdate(@RequestBody UserUpdateRequest request){
+        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
+        return apiResponse.<UserResponse>builder()
+                 .result(userService.userUpdate(request))
+                 .build();
     }
 
     @DeleteMapping("/{userId}")
-    String deleteUser(@PathVariable("userId") String userId){
+    ApiResponse<String> deleteUser(@PathVariable("userId") String userId){
+        ApiResponse<String> apiResponse = new ApiResponse<>();
         userService.deleteUser(userId);
-        return "User has been deleted";
+        return apiResponse.<String>builder()
+                .result("User has been deleted")
+                .build();
     }
 }
