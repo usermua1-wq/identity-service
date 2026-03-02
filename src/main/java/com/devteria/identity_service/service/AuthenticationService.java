@@ -2,8 +2,8 @@ package com.devteria.identity_service.service;
 
 import com.devteria.identity_service.dto.request.AuthenticationRequest;
 import com.devteria.identity_service.dto.request.VerifyTokenRequest;
-import com.devteria.identity_service.dto.response.AuthenticationResponse;
-import com.devteria.identity_service.dto.response.VerifyTokenResponse;
+import com.devteria.identity_service.dto.response.AuthenticationDTO;
+import com.devteria.identity_service.dto.response.VerifyTokenDTO;
 import com.devteria.identity_service.entity.User;
 import com.devteria.identity_service.exception.AppException;
 import com.devteria.identity_service.exception.ErrorCode;
@@ -36,7 +36,7 @@ public class AuthenticationService {
     @Value("${spring.jwt.signingKey}")
     protected String SIGNED_KEY;
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request){
+    public AuthenticationDTO authenticate(AuthenticationRequest request){
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         PasswordEncoder authenticated = new BCryptPasswordEncoder(10);
@@ -44,7 +44,7 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.WRONG_PASSWORD);
         }else{
             var token = generateToken(user);
-            return AuthenticationResponse.builder()
+            return AuthenticationDTO.builder()
                     .token(token)
                     .authenticated(true)
                     .build();
@@ -82,11 +82,11 @@ public class AuthenticationService {
         }
     }
 
-    public VerifyTokenResponse verifyToken(VerifyTokenRequest request) throws ParseException, JOSEException {
+    public VerifyTokenDTO verifyToken(VerifyTokenRequest request) throws ParseException, JOSEException {
         SignedJWT signedJWT = SignedJWT.parse(request.getToken());
         byte[] secretBytes = SIGNED_KEY.getBytes();
         JWSVerifier verifier = new MACVerifier(secretBytes);
-        return VerifyTokenResponse.builder()
+        return VerifyTokenDTO.builder()
                 .valid(signedJWT.verify(verifier) && new Date().before(signedJWT.getJWTClaimsSet().getExpirationTime()))
                 .build();
     }
@@ -94,7 +94,7 @@ public class AuthenticationService {
     private String buildScope(User user){
         StringJoiner stringJoiner = new StringJoiner(", ");
         if(!CollectionUtils.isEmpty(user.getRoles())){
-            user.getRoles().forEach(stringJoiner::add);
+//            user.getRoles().forEach(stringJoiner::add);
         }
         return stringJoiner.toString();
     }

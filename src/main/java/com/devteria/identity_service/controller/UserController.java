@@ -3,7 +3,7 @@ package com.devteria.identity_service.controller;
 import com.devteria.identity_service.dto.response.ApiResponse;
 import com.devteria.identity_service.dto.request.UserCreationRequest;
 import com.devteria.identity_service.dto.request.UserUpdateRequest;
-import com.devteria.identity_service.dto.response.UserResponse;
+import com.devteria.identity_service.dto.response.UserDTO;
 import com.devteria.identity_service.entity.User;
 import com.devteria.identity_service.service.UserService;
 import jakarta.validation.Valid;
@@ -38,17 +38,17 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    ApiResponse<UserResponse> getUser(@PathVariable("userId") String userId){
-        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
-        return apiResponse.<UserResponse>builder()
+    ApiResponse<UserDTO> getUser(@PathVariable("userId") String userId){
+        ApiResponse<UserDTO> apiResponse = new ApiResponse<>();
+        return apiResponse.<UserDTO>builder()
                 .result(userService.getUser(userId))
                 .build();
     }
 
     @PutMapping
-    ApiResponse<UserResponse> userUpdate(@RequestBody UserUpdateRequest request){
-        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
-        return apiResponse.<UserResponse>builder()
+    ApiResponse<UserDTO> userUpdate(@RequestBody UserUpdateRequest request){
+        ApiResponse<UserDTO> apiResponse = new ApiResponse<>();
+        return apiResponse.<UserDTO>builder()
                  .result(userService.userUpdate(request))
                  .build();
     }
@@ -59,6 +59,14 @@ public class UserController {
         userService.deleteUser(userId);
         return apiResponse.<String>builder()
                 .result("User has been deleted")
+                .build();
+    }
+
+    @GetMapping("/getMyInfo")
+    ApiResponse<UserDTO> getMyInfo(){
+        ApiResponse<UserDTO> apiResponse = new ApiResponse<>();
+        return apiResponse.<UserDTO>builder()
+                .result(userService.getMyInfo())
                 .build();
     }
 }

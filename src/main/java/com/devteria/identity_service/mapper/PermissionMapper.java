@@ -1,0 +1,12 @@
+package com.devteria.identity_service.mapper;
+
+import com.devteria.identity_service.dto.request.PermissionRequest;
+import com.devteria.identity_service.dto.response.PermissionDTO;
+import com.devteria.identity_service.entity.Permission;
+import org.mapstruct.Mapper;
+
+@Mapper(componentModel = "spring")
+public interface PermissionMapper {
+    Permission toPermission(PermissionRequest request);
+    PermissionDTO toPermissionResponse(Permission permission);
+}

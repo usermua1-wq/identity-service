@@ -2,7 +2,7 @@ package com.devteria.identity_service.service;
 
 import com.devteria.identity_service.dto.request.UserCreationRequest;
 import com.devteria.identity_service.dto.request.UserUpdateRequest;
-import com.devteria.identity_service.dto.response.UserResponse;
+import com.devteria.identity_service.dto.response.UserDTO;
 import com.devteria.identity_service.entity.User;
 import com.devteria.identity_service.enums.Role;
 import com.devteria.identity_service.exception.AppException;
@@ -12,7 +12,10 @@ import com.devteria.identity_service.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
     UserRepository userRepository;
@@ -35,20 +39,22 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         HashSet<String> roles = new HashSet<>();
         roles.add(Role.USER.name());
-        user.setRoles(roles);
+//        user.setRoles(roles);
         return userRepository.save(user);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public List<User> getUsers(){
         return userRepository.findAll();
     }
 
-    public UserResponse getUser(String userId){
+    @PostAuthorize("returnObject.username == authentication.name or hasRole('ADMIN')")
+    public UserDTO getUser(String userId){
         return userMapper.toUserResponse(userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
     }
 
-    public UserResponse userUpdate (UserUpdateRequest request){
+    public UserDTO userUpdate (UserUpdateRequest request){
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         userMapper.updateUser(user, request);
@@ -57,5 +63,13 @@ public class UserService {
 
     public void deleteUser(String userId){
         userRepository.deleteById(userId);
+    }
+
+    public UserDTO getMyInfo(){
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        User user = userRepository.findByUsername(name)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 }

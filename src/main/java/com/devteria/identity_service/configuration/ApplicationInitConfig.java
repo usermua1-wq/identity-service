@@ -27,7 +27,7 @@ public class ApplicationInitConfig {
                 User user = User.builder()
                        .username("admin")
                        .password(passwordEncoder.encode("admin"))
-                       .roles(roles)
+//                       .roles(roles)
                        .build();
                 userRepository.save(user);
                 log.warn("Admin user has been created by default, pass: admin. Please change it");

@@ -3,8 +3,8 @@ package com.devteria.identity_service.controller;
 import com.devteria.identity_service.dto.response.ApiResponse;
 import com.devteria.identity_service.dto.request.AuthenticationRequest;
 import com.devteria.identity_service.dto.request.VerifyTokenRequest;
-import com.devteria.identity_service.dto.response.AuthenticationResponse;
-import com.devteria.identity_service.dto.response.VerifyTokenResponse;
+import com.devteria.identity_service.dto.response.AuthenticationDTO;
+import com.devteria.identity_service.dto.response.VerifyTokenDTO;
 import com.devteria.identity_service.service.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
@@ -24,18 +24,18 @@ import java.text.ParseException;
 public class AuthenticationController {
     AuthenticationService authenticationService;
     @PostMapping("/login")
-    ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest authenticationRequest){
+    ApiResponse<AuthenticationDTO> authenticate(@RequestBody AuthenticationRequest authenticationRequest){
         var result = authenticationService.authenticate(authenticationRequest);
-        return ApiResponse.<AuthenticationResponse>builder()
+        return ApiResponse.<AuthenticationDTO>builder()
                 .result(result)
                 .build();
     }
 
     @PostMapping("/verify")
-    ApiResponse<VerifyTokenResponse> verifyToken(@RequestBody VerifyTokenRequest verifyTokenRequest)
+    ApiResponse<VerifyTokenDTO> verifyToken(@RequestBody VerifyTokenRequest verifyTokenRequest)
             throws ParseException, JOSEException {
         var result = authenticationService.verifyToken(verifyTokenRequest);
-        return ApiResponse.<VerifyTokenResponse>builder()
+        return ApiResponse.<VerifyTokenDTO>builder()
                 .result(result)
                 .build();
     }
