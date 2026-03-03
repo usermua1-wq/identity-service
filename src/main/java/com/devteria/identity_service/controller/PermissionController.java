@@ -7,7 +7,6 @@ import com.devteria.identity_service.service.PermissionService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,7 +32,7 @@ public class PermissionController {
                 .build();
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{permission}")
     ApiResponse<Void> deletePermission(@PathVariable String permission){
         permissionService.delete(permission);
         return ApiResponse.<Void>builder()

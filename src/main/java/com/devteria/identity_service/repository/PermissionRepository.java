@@ -1,4 +1,4 @@
-package com.devteria.identity_service.mapper;
+package com.devteria.identity_service.repository;
 
 import com.devteria.identity_service.entity.Permission;
 import org.springframework.data.jpa.repository.JpaRepository;

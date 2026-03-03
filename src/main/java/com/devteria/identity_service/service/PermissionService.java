@@ -4,7 +4,7 @@ import com.devteria.identity_service.dto.request.PermissionRequest;
 import com.devteria.identity_service.dto.response.PermissionDTO;
 import com.devteria.identity_service.entity.Permission;
 import com.devteria.identity_service.mapper.PermissionMapper;
-import com.devteria.identity_service.mapper.PermissionRepository;
+import com.devteria.identity_service.repository.PermissionRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

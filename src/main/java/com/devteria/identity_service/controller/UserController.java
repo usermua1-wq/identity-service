@@ -23,49 +23,43 @@ public class UserController {
 
     @PostMapping
     ApiResponse<User> createUser(@RequestBody @Valid UserCreationRequest request){
-        ApiResponse<User> apiResponse = new ApiResponse<>();
-        return apiResponse.<User>builder()
+        return ApiResponse.<User>builder()
                  .result(userService.createRequest(request))
                  .build();
     }
 
     @GetMapping
     ApiResponse<List<User>> getUsers(){
-        ApiResponse<List<User>> apiResponse = new ApiResponse<>();
-        return apiResponse.<List<User>>builder()
+        return ApiResponse.<List<User>>builder()
                 .result(userService.getUsers())
                 .build();
     }
 
     @GetMapping("/{userId}")
     ApiResponse<UserDTO> getUser(@PathVariable("userId") String userId){
-        ApiResponse<UserDTO> apiResponse = new ApiResponse<>();
-        return apiResponse.<UserDTO>builder()
+        return ApiResponse.<UserDTO>builder()
                 .result(userService.getUser(userId))
                 .build();
     }
 
     @PutMapping
     ApiResponse<UserDTO> userUpdate(@RequestBody UserUpdateRequest request){
-        ApiResponse<UserDTO> apiResponse = new ApiResponse<>();
-        return apiResponse.<UserDTO>builder()
+        return ApiResponse.<UserDTO>builder()
                  .result(userService.userUpdate(request))
                  .build();
     }
 
     @DeleteMapping("/{userId}")
     ApiResponse<String> deleteUser(@PathVariable("userId") String userId){
-        ApiResponse<String> apiResponse = new ApiResponse<>();
         userService.deleteUser(userId);
-        return apiResponse.<String>builder()
+        return ApiResponse.<String>builder()
                 .result("User has been deleted")
                 .build();
     }
 
     @GetMapping("/getMyInfo")
     ApiResponse<UserDTO> getMyInfo(){
-        ApiResponse<UserDTO> apiResponse = new ApiResponse<>();
-        return apiResponse.<UserDTO>builder()
+        return ApiResponse.<UserDTO>builder()
                 .result(userService.getMyInfo())
                 .build();
     }
