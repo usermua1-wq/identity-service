@@ -2,12 +2,17 @@ package com.devteria.identity_service.service;
 
 import com.devteria.identity_service.dto.request.UserCreationRequest;
 import com.devteria.identity_service.dto.request.UserUpdateRequest;
+import com.devteria.identity_service.dto.response.PermissionDTO;
+import com.devteria.identity_service.dto.response.RoleDTO;
 import com.devteria.identity_service.dto.response.UserDTO;
 import com.devteria.identity_service.entity.User;
 import com.devteria.identity_service.enums.Role;
 import com.devteria.identity_service.exception.AppException;
 import com.devteria.identity_service.exception.ErrorCode;
+import com.devteria.identity_service.mapper.PermissionMapper;
+import com.devteria.identity_service.mapper.RoleMapper;
 import com.devteria.identity_service.mapper.UserMapper;
+import com.devteria.identity_service.repository.RoleRepository;
 import com.devteria.identity_service.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +26,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +36,10 @@ import java.util.List;
 public class UserService {
     UserRepository userRepository;
     UserMapper userMapper;
+    RoleMapper roleMapper;
+    PermissionMapper permissionMapper;
     PasswordEncoder passwordEncoder;
+    RoleRepository roleRepository;
 
     public User createRequest (UserCreationRequest request){
         if(userRepository.existsByUsername(request.getUsername())){
@@ -57,8 +67,21 @@ public class UserService {
     public UserDTO userUpdate (UserUpdateRequest request){
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        var roles = roleRepository.findAllById(request.getRoles());
+        user.setRoles(new HashSet<>(roles));
         userMapper.updateUser(user, request);
-        return userMapper.toUserResponse(userRepository.save(user));
+        UserDTO userDTO = userMapper.toUserResponse(userRepository.save(user));
+
+        userDTO.setRoles(roles.stream().map(role -> {
+            Set<PermissionDTO> permissionDTOs = role.getPermissions().stream()
+                    .map(permissionMapper::toPermissionResponse)
+                    .collect(Collectors.toSet());
+            RoleDTO roleDTO = roleMapper.tRoleResponse(role);
+            roleDTO.setPermissions(permissionDTOs);
+            return roleDTO;
+        }).collect(Collectors.toSet()));
+        return userDTO;
     }
 
     public void deleteUser(String userId){

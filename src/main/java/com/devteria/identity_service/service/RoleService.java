@@ -35,7 +35,11 @@ public class RoleService {
         Role role = roleMapper.toRole(roleRequest);
         var permission = permissionRepository.findAllById(roleRequest.getPermissions());
         role.setPermissions(new HashSet<>(permission));
-        return roleMapper.tRoleResponse(roleRepository.save(role));
+        RoleDTO roleDTO = roleMapper.tRoleResponse(role);
+        roleDTO.setPermissions(permission.stream()
+                .map(permissionMapper::toPermissionResponse)
+                .collect(Collectors.toSet()));
+        return roleDTO;
     }
 
     public List<RoleDTO> getAll() {

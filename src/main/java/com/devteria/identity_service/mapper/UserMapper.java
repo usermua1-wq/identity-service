@@ -13,8 +13,10 @@ public interface UserMapper {
     User toUser(UserCreationRequest request);
     UserDTO toUserResponse(User user);
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "roles", ignore = true)
     void updateUser(@MappingTarget User user, UserUpdateRequest request);
     @Mapping(source = "firstName", target = "lastName")
     @Mapping(target = "dob", ignore = true)
+    @Mapping(target = "roles", ignore = true)
     UserDTO optionalMapping(User user);
 }
