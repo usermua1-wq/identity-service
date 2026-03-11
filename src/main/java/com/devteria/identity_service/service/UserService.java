@@ -24,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,8 +55,14 @@ public class UserService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public List<User> getUsers(){
-        return userRepository.findAll();
+    public List<UserDTO> getUsers(){
+        List<User> users = userRepository.findAll();
+        List<UserDTO> userDTOS = new ArrayList<>();
+        for(User user : users){
+            UserDTO userDTO = userMapper.toUserResponse(user);
+            userDTOS.add(userDTO);
+        }
+        return userDTOS;
     }
 
     @PostAuthorize("returnObject.username == authentication.name or hasRole('ADMIN')")
@@ -72,15 +79,6 @@ public class UserService {
         user.setRoles(new HashSet<>(roles));
         userMapper.updateUser(user, request);
         UserDTO userDTO = userMapper.toUserResponse(userRepository.save(user));
-
-        userDTO.setRoles(roles.stream().map(role -> {
-            Set<PermissionDTO> permissionDTOs = role.getPermissions().stream()
-                    .map(permissionMapper::toPermissionResponse)
-                    .collect(Collectors.toSet());
-            RoleDTO roleDTO = roleMapper.tRoleResponse(role);
-            roleDTO.setPermissions(permissionDTOs);
-            return roleDTO;
-        }).collect(Collectors.toSet()));
         return userDTO;
     }
 

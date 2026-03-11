@@ -29,8 +29,8 @@ public class UserController {
     }
 
     @GetMapping
-    ApiResponse<List<User>> getUsers(){
-        return ApiResponse.<List<User>>builder()
+    ApiResponse<List<UserDTO>> getUsers(){
+        return ApiResponse.<List<UserDTO>>builder()
                 .result(userService.getUsers())
                 .build();
     }
