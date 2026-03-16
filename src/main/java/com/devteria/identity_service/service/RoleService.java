@@ -59,14 +59,8 @@ public class RoleService {
 
     public List<RoleDTO> getAll2() {
         List<Role> roles = roleRepository.findAll();
-        return roles.stream().map(role -> {
-            Set<PermissionDTO> permissionDTOs = role.getPermissions().stream()
-                    .map(permissionMapper::toPermissionResponse)
-                    .collect(Collectors.toSet());
-            RoleDTO roleDTO = roleMapper.tRoleResponse(role);
-            roleDTO.setPermissions(permissionDTOs);
-            return roleDTO;
-        }).toList();
+        List<RoleDTO> roleDTOS =  roles.stream().map(roleMapper::tRoleResponse).collect(Collectors.toCollection(ArrayList::new));
+        return roleDTOS;
     }
 
     public void deleteRole(String rolename) {

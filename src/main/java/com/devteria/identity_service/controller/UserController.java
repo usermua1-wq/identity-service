@@ -43,7 +43,7 @@ public class UserController {
     }
 
     @PutMapping
-    ApiResponse<UserDTO> userUpdate(@RequestBody UserUpdateRequest request){
+    ApiResponse<UserDTO> userUpdate(@RequestBody @Valid UserUpdateRequest request){
         return ApiResponse.<UserDTO>builder()
                  .result(userService.userUpdate(request))
                  .build();

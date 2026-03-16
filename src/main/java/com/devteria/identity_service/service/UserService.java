@@ -2,8 +2,6 @@ package com.devteria.identity_service.service;
 
 import com.devteria.identity_service.dto.request.UserCreationRequest;
 import com.devteria.identity_service.dto.request.UserUpdateRequest;
-import com.devteria.identity_service.dto.response.PermissionDTO;
-import com.devteria.identity_service.dto.response.RoleDTO;
 import com.devteria.identity_service.dto.response.UserDTO;
 import com.devteria.identity_service.entity.User;
 import com.devteria.identity_service.enums.Role;
@@ -37,8 +35,6 @@ import java.util.stream.Collectors;
 public class UserService {
     UserRepository userRepository;
     UserMapper userMapper;
-    RoleMapper roleMapper;
-    PermissionMapper permissionMapper;
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
 
@@ -71,6 +67,7 @@ public class UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
     }
 
+    @PreAuthorize("hasAuthority('UPDATE_DATA')")
     public UserDTO userUpdate (UserUpdateRequest request){
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
