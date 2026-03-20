@@ -15,7 +15,8 @@ public enum ErrorCode {
     WRONG_PASSWORD(1005, "Password or Username does not correct", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED(1006, "You don't have permission to access", HttpStatus.FORBIDDEN),
     UNAUTHENTICATED(1007, "You need to login to access", HttpStatus.UNAUTHORIZED),
-    INVALID_BIRTHDATE(1008,"Your age must be at least {min}", HttpStatus.BAD_REQUEST)
+    INVALID_BIRTHDATE(1008,"Your age must be at least {min}", HttpStatus.BAD_REQUEST),
+    TOKEN_EXPIRED(1009,"Token has expired", HttpStatus.UNAUTHORIZED),
     ;
     private  int code;
     private String message;

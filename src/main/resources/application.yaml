@@ -15,3 +15,5 @@ spring:
 
   jwt:
     signingKey: "32f246e932823105f0707c4a85648d72623d3183ea74944ec205842751af539a"
+    token-duration: 3600 #seconds
+    refreshable-duration: 3600 #seconds

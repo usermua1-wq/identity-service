@@ -1,5 +1,6 @@
 package com.devteria.identity_service.configuration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,15 +24,16 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    @Value("${spring.jwt.signingKey}")
-    protected String SIGNED_KEY;
     // Danh sách các API không cần xác thực (Public)
     private final String[] PUBLIC_ENDPOINTS = {
-            "/users", "/auth/login", "/auth/verify"
+            "/users", "/auth/login", "/auth/verify", "/auth/logout", "/auth/refresh"
     };
     private final String[] PRIVATE_ENDPOINTS = {
             "/users"
     };
+
+    @Autowired
+    CustomJwtDecoder customJwtDecoder;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -43,7 +45,7 @@ public class SecurityConfig {
 
         // Cấu hình để ứng dụng đóng vai trò là Resource Server nhận JWT
         httpSecurity.oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())
+                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
                         .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
         );
@@ -52,18 +54,6 @@ public class SecurityConfig {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         return httpSecurity.build();
-    }
-
-    @Bean
-    JwtDecoder jwtDecoder() {
-        // Đây là nơi bạn cấu hình cách giải mã Token.
-        // Bạn có thể dùng Secret Key đã tạo trước đó.
-        String secretKey = SIGNED_KEY;
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "HS512");
-
-        return NimbusJwtDecoder.withSecretKey(secretKeySpec)
-                .macAlgorithm(MacAlgorithm.HS512)
-                .build();
     }
 
     @Bean
